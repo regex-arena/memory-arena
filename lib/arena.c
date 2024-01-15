@@ -28,35 +28,31 @@ struct Arena arenaAllocate(unsigned int size) {
     return arena;
 }
 
-void arenaFree(struct Arena arena) {
-    munmap(arena.start, arena.size);
+int arenaFree(struct Arena arena) {
+    return munmap(arena.start, arena.size);
 }
 
-void* arenaAssignBytes(struct Arena arena, unsigned int bytes) {
-    void* allocated = arena.head;
-    if (arena.head + bytes > arena.end) {
+void* arenaAssignBytes(struct Arena* arena, unsigned int bytes) {
+    void* allocated = arena->head;
+    if (arena->head + bytes > arena->end) {
         errno = ENOMEM;
         return NULL;
     };
+    if (mprotect(arena->head, bytes, PROT_READ | PROT_WRITE) == -1) {
+        return NULL;
+    };
+    arena->head += bytes;
     return allocated;
 }
 
-void arenaPopBytes(struct Arena arena, unsigned int bytes) {
-    arena.head -= bytes;
-    // Protect from writing before buffer
-    if (arena.start > arena.head) {
-        arena.head = arena.start;
-    }
-}
-
-int arenaIndex(struct Arena arena) {
-    return arena.head - arena.start;
-}
-
-void arenaRolback(struct Arena arena, unsigned int bytes) {
-    arena.head = arena.start + bytes;
-    // Protect from writing before buffer
-    if (arena.start > arena.head) {
-        arena.head = arena.start;
+int arenaPopBytes(struct Arena* arena, unsigned int bytes) {
+    // Prevents writing before buffer start
+    if (arena->start > arena->head - bytes) {
+        bytes = arena->head - arena->start;
+        arena->head = arena->start;
+        return mprotect(arena->start, bytes, PROT_NONE);
+    } else {
+        arena->head -= bytes;
+        return mprotect(arena->head, bytes, PROT_NONE);
     }
 }

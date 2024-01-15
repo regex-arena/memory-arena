@@ -1,4 +1,4 @@
-IN=test/main.c
+IN=tests/main.c
 OUT=bin/main
 CC=gcc -Wall -g
 LIB_FILES=lib/arena.c
