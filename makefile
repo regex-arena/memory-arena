@@ -1,23 +1,15 @@
 IN=tests/main.c
 OUT=bin/main
 CC=gcc -Wall -g
-LIB_FILES=lib/arena.c
-LIB_UPDATE_FILES=lib/arena.c lib/arena.h
+LIB_FILES=lib/arena.h
 LIB_NAME=arena
-ifeq ($(OS), Windows_NT)
-	echo "WINDOWS BUILD CURRENTLY UNIMPLEMENTED"
-	LIB_TARGET = $(LIB_NAME).dll
-else
-	LIB_TARGET = lib$(LIB_NAME).so
-endif
 
-build: l
+build:
 	$(CC) -c $(IN) -o $(OUT).o
-	$(CC) $(OUT).o -o $(OUT) -l$(LIB_NAME) -L ./bin
+	$(CC) $(OUT).o -o $(OUT) -L ./bin
 
-
-l: $(LIB_UPDATE_FILES)
-	$(CC) -o bin/$(LIB_TARGET) -fpic -shared $(LIB_FILES)
+install:
+	sudo cp $(LIB_FILES) -i /usr/local/include
 
 test: build
 	LD_LIBRARY_PATH="./bin/" $(OUT)

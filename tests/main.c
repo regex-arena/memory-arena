@@ -15,6 +15,9 @@ int main() {
     // Returns zero on successfull re-asignment
     assert(arenaPopBytes(&arena, sizeof(int)) == 0);
     assert(arenaAssignBytes(&arena, sizeof(int)) != NULL);
+    assert(arenaAssignBytes(&arena, sizeof(int)) != NULL);
+    assert(arenaAssignBytes(&arena, sizeof(int)) != NULL);
+    assert(arenaAssignBytes(&arena, sizeof(int)) != NULL);
     // Overflows stack - should return NULL 
     seven = arenaAssignBytes(&arena, 16*sizeof(int));
     assert(seven == NULL);
